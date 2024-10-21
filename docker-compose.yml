@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  mysql-container:
+    image: mysql:latest
+    container_name: mysql-container
+    ports:
+      - "3308:3308"
+    environment:
+      MYSQL_ROOT_PASSWORD: pass123
+      MYSQL_DATABASE: library
+
+  spring-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: spring-app-container
+    depends_on:
+      - mysql-container
+    environment:
+      spring.application.name: msvc-libreria
+      server.port: 8080
+      spring.datasource.url: jdbc:mysql://mysql-container:3308/library
+      spring.datasource.username: root
+      spring.datasource.password: pass123
+      spring.datasource.driver-class-name: com.mysql.cj.jdbc.Driver
+      spring.jpa.database-platform: org.hibernate.dialect.MySQLDialect
+      spring.jpa.hibernate.ddl-auto: update
+      spring.jpa.show-sql: "true"
+      logging.level.org.hibernate.SQL: debug
+      spring.mvc.pathmatch.matching-strategy: ant-path-matcher
+    ports:
+      - "8080:8080"
